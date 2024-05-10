@@ -1,0 +1,23 @@
+{
+  "yang-model-lisko:network": {
+    "system": {
+      "hostname": "R1",
+      "description": "Example router"
+    },
+    "interfaces": {
+      "interface": [
+        {
+          "name": "GigabitEthernet0/1",
+          "description": "LAN Interface"
+        },
+        {
+          "name": "GigabitEthernet0/2",
+          "description": "LAN Interface2"
+        },
+        {
+          "name": "GigabitEthernet0/3"
+        }
+      ]
+    }
+  }
+}

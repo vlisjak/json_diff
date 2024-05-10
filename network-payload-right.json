@@ -1,0 +1,36 @@
+{
+  "yang-model-lisko:network": {
+    "system": {
+      "hostname": "R1",
+      "description": "Example router CHANGED DICT VALUE"
+    },
+    "router bgp":{
+      "asn": "100 NEW DICT"
+    },
+    "interfaces": {
+      "interface": [
+        {
+          "name": "GigabitEthernet0/2",
+          "description": "LAN Interface2"
+        },
+        {
+          "name": "GigabitEthernet1/1",
+          "description": "NEW LIST ITEM interface"
+        },
+        {
+          "name": "GigabitEthernet0/1",
+          "description": "LAN Interface"
+        },
+        {
+          "NEW DICT in LIST": {
+            "nested1": "nested1 value1",
+            "nested2": "nested2 value2"
+          }
+        },
+        {
+          "name": "GigabitEthernet0/3"
+        }
+      ]
+    }
+  }
+}
