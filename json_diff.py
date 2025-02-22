@@ -9,6 +9,8 @@ from deepdiff import extract
 from deepdiff.serialization import json_dumps, json_loads
 from typing import Callable
 from jycm.jycm import YouchamaJsonDiffer
+from jycm.helper import make_ignore_order_func
+
 
 
 # TODO:
@@ -114,7 +116,7 @@ def using_jycm(left, right):
 
   print("\n##### Using Jycm\n")
 
-  ycm = YouchamaJsonDiffer(left, right)
+  ycm = YouchamaJsonDiffer(left, right, ignore_order_func=make_ignore_order_func([".*"]))
 
   diff_result = ycm.get_diff()
 
@@ -133,6 +135,6 @@ if __name__ == '__main__':
   using_deepdiff(left, right)
   # xml_using_deepdiff(left, right)
   # using_difflib(left, right)
-  # using_jycm(left, right)
+  using_jycm(left, right)
 
 
