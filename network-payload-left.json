@@ -1,0 +1,48 @@
+{
+  "yang-model-lisko:network": {
+    "system": {
+      "hostname": "R1",
+      "description": "Example router"
+    },
+    "nodes": {
+      "node": [
+        {
+          "name": "n1",
+          "description": "d1"
+        },
+        {
+          "name": "n2",
+          "description": "d2"
+        },
+        {
+          "name": "n3",
+          "description": "d3"
+        }
+      ]
+    },
+    "interfaces": {
+      "interface": [
+        {
+          "name": "GigabitEthernet0/1",
+          "description": "LAN Interface1",
+          "mtu": 1999
+        },
+        {
+          "name": "GigabitEthernet0/999",
+          "description": "LAN Interface999"
+        },
+        {
+          "name": "GigabitEthernet0/2",
+          "description": "LAN Interface2"
+        },
+        {
+          "name": "GigabitEthernet1/1",
+          "description": "LAN Interface3"
+        },
+        {
+          "name": "GigabitEthernet0/3"
+        }
+      ]
+    }
+  }
+}

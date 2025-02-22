@@ -1,0 +1,6 @@
+backup
+bad_configs
+configs
+hardware_inv.json
+hardware_inv_mod.json
+json_diff_template.py
