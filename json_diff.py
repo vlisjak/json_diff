@@ -20,6 +20,8 @@ from jycm.helper import make_ignore_order_func
 ./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib
 
 # XML deepdiff:
+./json_diff.py -l left.xml -r right.xml -t xml -m deepdiff
+./json_diff.py -l left.xml -r right.xml -t xml -m jycm
 ./json_diff.py -l left.xml -r right.xml -t xml -m difflib
 """
 
@@ -38,6 +40,19 @@ class JsonDiff:
         "list:remove": "DEL",
         "dict:remove": "DEL",
         "value_changes": "CHG",
+    }
+
+    CHG_ACT_SHORT = {
+        "iterable_item_added": "+",
+        "dictionary_item_added": "+",
+        "iterable_item_removed": "-",
+        "dictionary_item_removed": "-",
+        "values_changed": "#",
+        "list:add": "+",
+        "dict:add": "+",
+        "list:remove": "-",
+        "dict:remove": "-",
+        "value_changes": "#",
     }
 
     def __init__(self, left_file: str, right_file: str, file_type: str):
@@ -88,15 +103,21 @@ class DeepDiffJsonDiff(JsonDiff):
             threshold_to_diff_deeper=0,
         )
 
+    # def show_diff(self):
+    #     print("\n##### Using DeepDiff\n")
+    #     for diff_action in sorted(self.diff_result):
+    #         print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
+    #         for item in self.diff_result[diff_action]:
+    #             item_path = "/".join(str(x) for x in item.path(output_format="list"))
+    #             print(f"{self.CHG_ACTIONS[diff_action]} | PATH | {item_path}")
+    #             print(f"{self.CHG_ACTIONS[diff_action]} |    L | {item.t1}")
+    #             print(f"{self.CHG_ACTIONS[diff_action]} |    R | {item.t2}\n")
+
     def show_diff(self):
-        print("\n##### Using DeepDiff\n")
         for diff_action in sorted(self.diff_result):
-            print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
             for item in self.diff_result[diff_action]:
                 item_path = "/".join(str(x) for x in item.path(output_format="list"))
-                print(f"{self.CHG_ACTIONS[diff_action]} | PATH | {item_path}")
-                print(f"{self.CHG_ACTIONS[diff_action]} |    L | {item.t1}")
-                print(f"{self.CHG_ACTIONS[diff_action]} |    R | {item.t2}\n")
+                print(f"{self.CHG_ACT_SHORT[diff_action]} | {item_path} | {item.t1} | {item.t2}")
 
 
 class DifflibJsonDiff(JsonDiff):
