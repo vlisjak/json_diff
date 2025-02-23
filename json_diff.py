@@ -20,7 +20,7 @@ from jycm.helper import make_ignore_order_func
 ./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib
 
 # XML deepdiff:
-./json_diff.py -l left.xml -r right.xml -t xml -m deepdiff
+./json_diff.py -l left.xml -r right.xml -t xml -m difflib
 """
 
 
@@ -38,11 +38,12 @@ class DiffResult:
 class JsonDiff:
     """Base class for performing diff operations on JSON files."""
 
-    def __init__(self, left_file: str, right_file: str):
+    def __init__(self, left_file: str, right_file: str, file_type: str):
         self.left_file = left_file
         self.right_file = right_file
-        self.left = self.load_json(left_file)
-        self.right = self.load_json(right_file)
+        self.file_type = file_type
+        self.left = self.load_data(left_file)
+        self.right = self.load_data(right_file)
         self.chg = {
             # DeepDiff actions
             "iterable_item_added": "ADD",
@@ -58,22 +59,26 @@ class JsonDiff:
             "value_changes": "CHG",
         }
 
-    @staticmethod
-    def load_json(file_path: str):
+    def load_data(self, file_path: str):
         try:
             with open(file_path, "r") as file:
-                json_string = json.loads(file.read())
+                if self.file_type == "json":
+                    loaded = json.loads(file.read())
+                elif self.file_type == "xml":
+                    loaded = json.loads(json.dumps(xmltodict.parse(file.read())))
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found.")
             raise
-        except json.JSONDecodeError as e:
-            print(f"Error: Failed to decode JSON from the file '{file_path}': {e}")
+        except (json.JSONDecodeError, xmltodict.expat.ExpatError) as e:
+            print(
+                f"Error: Failed to decode {self.file_type.upper()} from the file '{file_path}': {e}"
+            )
             raise
         except Exception as e:
             print(f"An unexpected error occurred: {type(e).__name__}: {e}")
             raise
         else:
-            return json_string
+            return loaded
 
     def diff(self):
         raise NotImplementedError("Subclasses should implement this!")
@@ -172,18 +177,6 @@ class JycmJsonDiff(JsonDiff):
                 print("\n")
 
 
-class DeepDiffXmlDiff(DeepDiffJsonDiff):
-    """Performs diff operations on XML files using the DeepDiff library after converting them to JSON."""
-
-    def load_json(self, file_path: str):
-        with open(file_path) as file:
-            return json.loads(json.dumps(xmltodict.parse(file.read())))
-
-    def show_diff(self, diff_result):
-        print("\n##### Using DeepDiff for XML\n")
-        super().show_diff(diff_result)
-
-
 def main():
     parser = argparse.ArgumentParser(
         description="Diff two files using specified method and type."
@@ -208,24 +201,19 @@ def main():
     args = parser.parse_args()
 
     diff_classes = {
-        "json": {
-            "deepdiff": DeepDiffJsonDiff,
-            "difflib": DifflibJsonDiff,
-            "jycm": JycmJsonDiff,
-        },
-        "xml": {"deepdiff": DeepDiffXmlDiff},
+        "deepdiff": DeepDiffJsonDiff,
+        "difflib": DifflibJsonDiff,
+        "jycm": JycmJsonDiff,
     }
 
-    if args.type not in diff_classes or args.method not in diff_classes[args.type]:
-        print(
-            f"Error: The combination of type '{args.type}' and method '{args.method}' is not supported."
-        )
+    if args.method not in diff_classes:
+        print(f"Error: Method '{args.method}' is not supported.")
         return
 
-    diff_class = diff_classes[args.type][args.method]
-    diff_instance = diff_class(args.left, args.right)
-    diff_result = diff_instance.diff()
-    diff_result.show_diff()
+    diff_class = diff_classes[args.method]
+    diff_instance = diff_class(args.left, args.right, args.type)
+    result = diff_instance.diff()
+    result.show_diff()
 
 
 if __name__ == "__main__":
