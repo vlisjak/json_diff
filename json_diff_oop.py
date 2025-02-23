@@ -25,15 +25,17 @@ class JsonDiff:
         self.left = self.load_json(left_file)
         self.right = self.load_json(right_file)
         self.chg = {
+            # DeepDiff actions
             "iterable_item_added": "ADD",
-            "list:add": "ADD",
             "dictionary_item_added": "ADD",
-            "dict:add": "ADD",
             "iterable_item_removed": "DEL",
-            "list:remove": "DEL",
             "dictionary_item_removed": "DEL",
-            "dict:remove": "DEL",
             "values_changed": "CHG",
+            # DiffLib actions
+            "list:add": "ADD",
+            "dict:add": "ADD",
+            "list:remove": "DEL",
+            "dict:remove": "DEL",
             "value_changes": "CHG",
         }
 
@@ -160,9 +162,9 @@ if __name__ == "__main__":
     dd_result = deepdiff_diff.diff()
     dd_result.show_diff()
 
-    # difflib_diff = DifflibJsonDiff(left_file, right_file)
-    # df_result = difflib_diff.diff()
-    # df_result.show_diff()
+    difflib_diff = DifflibJsonDiff(left_file, right_file)
+    df_result = difflib_diff.diff()
+    df_result.show_diff()
 
     # jycm_diff = JycmJsonDiff(left_file, right_file)
     # jycm_result = jycm_diff.diff()
