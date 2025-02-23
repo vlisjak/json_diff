@@ -60,9 +60,7 @@ class JsonDiff:
             print(f"Error: The file '{file_path}' was not found.")
             raise
         except (json.JSONDecodeError, xmltodict.expat.ExpatError) as e:
-            print(
-                f"Error: Failed to decode {self.file_type.upper()} from the file '{file_path}': {e}"
-            )
+            print(f"Error: Failed to decode {self.file_type.upper()} from the file '{file_path}': {e}")
             raise
         except Exception as e:
             print(f"An unexpected error occurred: {type(e).__name__}: {e}")
@@ -101,7 +99,7 @@ class DeepDiffJsonDiff(JsonDiff):
     #             print(f"{self.CHG_ACTION[diff_action]} |    R | {item.t2}\n")
 
     # TODO: pick a delimiter that can not appear in left/right element?
-    
+
     def show_diff(self):
         for diff_action in sorted(self.diff_result):
             for item in self.diff_result[diff_action]:
@@ -151,9 +149,7 @@ class JycmJsonDiff(JsonDiff):
     """Performs diff operations on JSON files using the Jycm library."""
 
     def diff(self):
-        ycm = YouchamaJsonDiffer(
-            self.left, self.right, ignore_order_func=make_ignore_order_func([".*"])
-        )
+        ycm = YouchamaJsonDiffer(self.left, self.right, ignore_order_func=make_ignore_order_func([".*"]))
         self.diff_result = ycm.get_diff()
 
     def show_diff(self):
@@ -163,20 +159,14 @@ class JycmJsonDiff(JsonDiff):
                 continue
             print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
             for item in self.diff_result[diff_action]:
-                print(
-                    f"{self.CHG_ACTION[diff_action]} | PATH_L | {item['left_path']}"
-                )
-                print(
-                    f"{self.CHG_ACTION[diff_action]} | PATH_R | {item['right_path']}"
-                )
+                print(f"{self.CHG_ACTION[diff_action]} | PATH_L | {item['left_path']}")
+                print(f"{self.CHG_ACTION[diff_action]} | PATH_R | {item['right_path']}")
                 print(f"{self.CHG_ACTION[diff_action]} |      L | {item['left']}")
                 print(f"{self.CHG_ACTION[diff_action]} |      R | {item['right']}\n")
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Diff two files using specified method and type."
-    )
+    parser = argparse.ArgumentParser(description="Diff two files using specified method and type.")
     parser.add_argument("-l", "--left", required=True, help="Left file name")
     parser.add_argument("-r", "--right", required=True, help="Right file name")
     parser.add_argument(
