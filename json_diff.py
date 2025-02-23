@@ -29,20 +29,7 @@ from jycm.helper import make_ignore_order_func
 class JsonDiff:
     """Base class for performing diff operations on JSON files."""
 
-    CHG_ACTIONS = {
-        "iterable_item_added": "ADD",
-        "dictionary_item_added": "ADD",
-        "iterable_item_removed": "DEL",
-        "dictionary_item_removed": "DEL",
-        "values_changed": "CHG",
-        "list:add": "ADD",
-        "dict:add": "ADD",
-        "list:remove": "DEL",
-        "dict:remove": "DEL",
-        "value_changes": "CHG",
-    }
-
-    CHG_ACT_SHORT = {
+    CHG_ACTION = {
         "iterable_item_added": "+",
         "dictionary_item_added": "+",
         "iterable_item_removed": "-",
@@ -109,15 +96,17 @@ class DeepDiffJsonDiff(JsonDiff):
     #         print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
     #         for item in self.diff_result[diff_action]:
     #             item_path = "/".join(str(x) for x in item.path(output_format="list"))
-    #             print(f"{self.CHG_ACTIONS[diff_action]} | PATH | {item_path}")
-    #             print(f"{self.CHG_ACTIONS[diff_action]} |    L | {item.t1}")
-    #             print(f"{self.CHG_ACTIONS[diff_action]} |    R | {item.t2}\n")
+    #             print(f"{self.CHG_ACTION[diff_action]} | PATH | {item_path}")
+    #             print(f"{self.CHG_ACTION[diff_action]} |    L | {item.t1}")
+    #             print(f"{self.CHG_ACTION[diff_action]} |    R | {item.t2}\n")
 
+    # TODO: pick a delimiter that can not appear in left/right element?
+    
     def show_diff(self):
         for diff_action in sorted(self.diff_result):
             for item in self.diff_result[diff_action]:
                 item_path = "/".join(str(x) for x in item.path(output_format="list"))
-                print(f"{self.CHG_ACT_SHORT[diff_action]} | {item_path} | {item.t1} | {item.t2}")
+                print(f"{self.CHG_ACTION[diff_action]} | {item_path} | {item.t1} | {item.t2}")
 
 
 class DifflibJsonDiff(JsonDiff):
@@ -175,13 +164,13 @@ class JycmJsonDiff(JsonDiff):
             print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
             for item in self.diff_result[diff_action]:
                 print(
-                    f"{self.CHG_ACTIONS[diff_action]} | PATH_L | {item['left_path']}"
+                    f"{self.CHG_ACTION[diff_action]} | PATH_L | {item['left_path']}"
                 )
                 print(
-                    f"{self.CHG_ACTIONS[diff_action]} | PATH_R | {item['right_path']}"
+                    f"{self.CHG_ACTION[diff_action]} | PATH_R | {item['right_path']}"
                 )
-                print(f"{self.CHG_ACTIONS[diff_action]} |      L | {item['left']}")
-                print(f"{self.CHG_ACTIONS[diff_action]} |      R | {item['right']}\n")
+                print(f"{self.CHG_ACTION[diff_action]} |      L | {item['left']}")
+                print(f"{self.CHG_ACTION[diff_action]} |      R | {item['right']}\n")
 
 
 def main():

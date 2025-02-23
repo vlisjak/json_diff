@@ -3,44 +3,12 @@
 ## DeepDiff - probably most popular library:
 `./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m deepdiff`
 ```
-##### Using DeepDiff
-
--------------------------DICTIONARY_ITEM_ADDED-------------------------
-
-ADD | PATH  : yang-model-lisko:network/router bgp
-ADD | LEFT  : not present
-ADD | RIGHT : {'asn': '100'}
-
-
--------------------------DICTIONARY_ITEM_REMOVED-------------------------
-
-DEL | PATH  : yang-model-lisko:network/interfaces/interface/0/mtu
-DEL | LEFT  : 1999
-DEL | RIGHT : not present
-
-
--------------------------ITERABLE_ITEM_REMOVED-------------------------
-
-DEL | PATH  : yang-model-lisko:network/nodes/node/2
-DEL | LEFT  : {'name': 'n3', 'description': 'd3'}
-DEL | RIGHT : not present
-
-
--------------------------VALUES_CHANGED-------------------------
-
-CHG | PATH  : yang-model-lisko:network/system/description
-CHG | LEFT  : Example router
-CHG | RIGHT : Example router R1
-
-
-CHG | PATH  : yang-model-lisko:network/interfaces/interface/3/name
-CHG | LEFT  : GigabitEthernet1/1
-CHG | RIGHT : GigabitEthernet1/4
-
-
-CHG | PATH  : yang-model-lisko:network/nodes/node/0/description
-CHG | LEFT  : d1
-CHG | RIGHT : d11
++ | yang-model-lisko:network/router bgp | not present | {'asn': '100'}
+- | yang-model-lisko:network/interfaces/interface/0/mtu | 1999 | not present
+- | yang-model-lisko:network/nodes/node/2 | {'name': 'n3', 'description': 'd3'} | not present
+# | yang-model-lisko:network/system/description | Example router | Example router R1
+# | yang-model-lisko:network/interfaces/interface/3/name | GigabitEthernet1/1 | GigabitEthernet1/4
+# | yang-model-lisko:network/nodes/node/0/description | d1 | d11
 ```
 
 ## Jycm - similar results to DeepDiff:
@@ -51,46 +19,41 @@ CHG | RIGHT : d11
 
 -------------------------DICT:ADD-------------------------
 
-ADD | PATH_LEFT  : 
-ADD | LEFT  : __NON_EXIST__
-ADD | PATH_RIGHT  : yang-model-lisko:network->router bgp
-ADD | RIGHT : {'asn': '100'}
-
++ | PATH_L | 
++ | PATH_R | yang-model-lisko:network->router bgp
++ |      L | __NON_EXIST__
++ |      R | {'asn': '100'}
 
 -------------------------DICT:REMOVE-------------------------
 
-DEL | PATH_LEFT  : yang-model-lisko:network->interfaces->interface->[0]->mtu
-DEL | LEFT  : 1999
-DEL | PATH_RIGHT  : 
-DEL | RIGHT : __NON_EXIST__
-
+- | PATH_L | yang-model-lisko:network->interfaces->interface->[0]->mtu
+- | PATH_R | 
+- |      L | 1999
+- |      R | __NON_EXIST__
 
 -------------------------LIST:REMOVE-------------------------
 
-DEL | PATH_LEFT  : yang-model-lisko:network->nodes->node->[2]
-DEL | LEFT  : {'name': 'n3', 'description': 'd3'}
-DEL | PATH_RIGHT  : 
-DEL | RIGHT : __NON_EXIST__
-
+- | PATH_L | yang-model-lisko:network->nodes->node->[2]
+- | PATH_R | 
+- |      L | {'name': 'n3', 'description': 'd3'}
+- |      R | __NON_EXIST__
 
 -------------------------VALUE_CHANGES-------------------------
 
-CHG | PATH_LEFT  : yang-model-lisko:network->interfaces->interface->[3]->name
-CHG | LEFT  : GigabitEthernet1/1
-CHG | PATH_RIGHT  : yang-model-lisko:network->interfaces->interface->[3]->name
-CHG | RIGHT : GigabitEthernet1/4
+# | PATH_L | yang-model-lisko:network->interfaces->interface->[3]->name
+# | PATH_R | yang-model-lisko:network->interfaces->interface->[3]->name
+# |      L | GigabitEthernet1/1
+# |      R | GigabitEthernet1/4
 
+# | PATH_L | yang-model-lisko:network->nodes->node->[0]->description
+# | PATH_R | yang-model-lisko:network->nodes->node->[1]->description
+# |      L | d1
+# |      R | d11
 
-CHG | PATH_LEFT  : yang-model-lisko:network->nodes->node->[0]->description
-CHG | LEFT  : d1
-CHG | PATH_RIGHT  : yang-model-lisko:network->nodes->node->[1]->description
-CHG | RIGHT : d11
-
-
-CHG | PATH_LEFT  : yang-model-lisko:network->system->description
-CHG | LEFT  : Example router
-CHG | PATH_RIGHT  : yang-model-lisko:network->system->description
-CHG | RIGHT : Example router R1
+# | PATH_L | yang-model-lisko:network->system->description
+# | PATH_R | yang-model-lisko:network->system->description
+# |      L | Example router
+# |      R | Example router R1
 ```
 ## DiffLib - result is similar to "legacy" diff, including red/green coloring in the terminal
 
@@ -102,38 +65,9 @@ CHG | RIGHT : Example router R1
 `./json_diff.py -l left.xml -r right.xml -t xml -m deepdiff`
 
 ```
-##### Using DeepDiff for XML
-
-
-##### Using DeepDiff
-
--------------------------DICTIONARY_ITEM_ADDED-------------------------
-
-ADD | PATH  : config/vrf/vrf-list/1/address-family/ipv4/unicast/export/route-target/address-list/name111
-ADD | LEFT  : not present
-ADD | RIGHT : 1:2
-
-
--------------------------DICTIONARY_ITEM_REMOVED-------------------------
-
-DEL | PATH  : config/vrf/vrf-list/1/address-family/ipv4/unicast/export/route-target/address-list/name
-DEL | LEFT  : 1:2
-DEL | RIGHT : not present
-
-
--------------------------VALUES_CHANGED-------------------------
-
-CHG | PATH  : config/vrf/vrf-list/1/rd
-CHG | LEFT  : 1:2
-CHG | RIGHT : 1:3
-
-
-CHG | PATH  : config/vrf/vrf-list/1/address-family/ipv4/unicast/import/route-target/address-list/name
-CHG | LEFT  : 1:2
-CHG | RIGHT : 1:3
-
-
-CHG | PATH  : config/router/bgp/bgp-no-instance/vrf/1/neighbor/id
-CHG | LEFT  : 9.2.2.2
-CHG | RIGHT : 9.2.2.3
++ | config/vrf/vrf-list/1/address-family/ipv4/unicast/export/route-target/address-list/name111 | not present | 1:2
+- | config/vrf/vrf-list/1/address-family/ipv4/unicast/export/route-target/address-list/name | 1:2 | not present
+# | config/vrf/vrf-list/1/rd | 1:2 | 1:3
+# | config/vrf/vrf-list/1/address-family/ipv4/unicast/import/route-target/address-list/name | 1:2 | 1:3
+# | config/router/bgp/bgp-no-instance/vrf/1/neighbor/id | 9.2.2.2 | 9.2.2.3
 ```
