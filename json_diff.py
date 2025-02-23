@@ -94,9 +94,9 @@ class DeepDiffJsonDiff(JsonDiff):
             print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
             for item in self.diff_result[diff_action]:
                 item_path = "/".join(str(x) for x in item.path(output_format="list"))
-                print(f"{self.CHG_ACTIONS[diff_action]} | PATH  : {item_path}")
-                print(f"{self.CHG_ACTIONS[diff_action]} | LEFT  : {item.t1}")
-                print(f"{self.CHG_ACTIONS[diff_action]} | RIGHT : {item.t2}\n")
+                print(f"{self.CHG_ACTIONS[diff_action]} | PATH : {item_path}")
+                print(f"{self.CHG_ACTIONS[diff_action]} |    L : {item.t1}")
+                print(f"{self.CHG_ACTIONS[diff_action]} |    R : {item.t2}\n")
 
 
 class DifflibJsonDiff(JsonDiff):
@@ -154,13 +154,13 @@ class JycmJsonDiff(JsonDiff):
             print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
             for item in self.diff_result[diff_action]:
                 print(
-                    f"{self.CHG_ACTIONS[diff_action]} | PATH_LEFT  : {item['left_path']}"
+                    f"{self.CHG_ACTIONS[diff_action]} | PATH_L: {item['left_path']}"
                 )
-                print(f"{self.CHG_ACTIONS[diff_action]} | LEFT  : {item['left']}")
                 print(
-                    f"{self.CHG_ACTIONS[diff_action]} | PATH_RIGHT  : {item['right_path']}"
+                    f"{self.CHG_ACTIONS[diff_action]} | PATH_R: {item['right_path']}"
                 )
-                print(f"{self.CHG_ACTIONS[diff_action]} | RIGHT : {item['right']}\n")
+                print(f"{self.CHG_ACTIONS[diff_action]} |      L: {item['left']}")
+                print(f"{self.CHG_ACTIONS[diff_action]} |      R: {item['right']}\n")
 
 
 def main():
