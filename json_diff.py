@@ -27,26 +27,25 @@ from jycm.helper import make_ignore_order_func
 class JsonDiff:
     """Base class for performing diff operations on JSON files."""
 
+    CHG_ACTIONS = {
+        "iterable_item_added": "ADD",
+        "dictionary_item_added": "ADD",
+        "iterable_item_removed": "DEL",
+        "dictionary_item_removed": "DEL",
+        "values_changed": "CHG",
+        "list:add": "ADD",
+        "dict:add": "ADD",
+        "list:remove": "DEL",
+        "dict:remove": "DEL",
+        "value_changes": "CHG",
+    }
+
     def __init__(self, left_file: str, right_file: str, file_type: str):
         self.left_file = left_file
         self.right_file = right_file
         self.file_type = file_type
         self.left = self.load_data(left_file)
         self.right = self.load_data(right_file)
-        self.chg = {
-            # DeepDiff actions
-            "iterable_item_added": "ADD",
-            "dictionary_item_added": "ADD",
-            "iterable_item_removed": "DEL",
-            "dictionary_item_removed": "DEL",
-            "values_changed": "CHG",
-            # DiffLib actions
-            "list:add": "ADD",
-            "dict:add": "ADD",
-            "list:remove": "DEL",
-            "dict:remove": "DEL",
-            "value_changes": "CHG",
-        }
 
     def load_data(self, file_path: str):
         try:
@@ -92,14 +91,12 @@ class DeepDiffJsonDiff(JsonDiff):
     def show_diff(self):
         print("\n##### Using DeepDiff\n")
         for diff_action in sorted(self.diff_result):
-            print(25 * "-" + diff_action.upper() + 25 * "-" + "\n")
+            print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
             for item in self.diff_result[diff_action]:
-                item_path_list = item.path(output_format="list")
-                item_path = "/".join(str(x) for x in item_path_list)
-                print(self.chg[diff_action] + " | PATH  :", item_path)
-                print(self.chg[diff_action] + " | LEFT  :", item.t1)
-                print(self.chg[diff_action] + " | RIGHT :", item.t2)
-                print("\n")
+                item_path = "/".join(str(x) for x in item.path(output_format="list"))
+                print(f"{self.CHG_ACTIONS[diff_action]} | PATH  : {item_path}")
+                print(f"{self.CHG_ACTIONS[diff_action]} | LEFT  : {item.t1}")
+                print(f"{self.CHG_ACTIONS[diff_action]} | RIGHT : {item.t2}\n")
 
 
 class DifflibJsonDiff(JsonDiff):
@@ -154,13 +151,16 @@ class JycmJsonDiff(JsonDiff):
         for diff_action in sorted(self.diff_result):
             if diff_action == "just4vis:pairs":
                 continue
-            print(25 * "-" + diff_action.upper() + 25 * "-" + "\n")
+            print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
             for item in self.diff_result[diff_action]:
-                print(self.chg[diff_action] + " | PATH_LEFT  :", item["left_path"])
-                print(self.chg[diff_action] + " | LEFT  :", item["left"])
-                print(self.chg[diff_action] + " | PATH_RIGHT  :", item["right_path"])
-                print(self.chg[diff_action] + " | RIGHT :", item["right"])
-                print("\n")
+                print(
+                    f"{self.CHG_ACTIONS[diff_action]} | PATH_LEFT  : {item['left_path']}"
+                )
+                print(f"{self.CHG_ACTIONS[diff_action]} | LEFT  : {item['left']}")
+                print(
+                    f"{self.CHG_ACTIONS[diff_action]} | PATH_RIGHT  : {item['right_path']}"
+                )
+                print(f"{self.CHG_ACTIONS[diff_action]} | RIGHT : {item['right']}\n")
 
 
 def main():
@@ -200,6 +200,11 @@ def main():
     diff_instance = diff_class(args.left, args.right, args.type)
     diff_instance.diff()
     diff_instance.show_diff()
+
+    # Normally you would pick a single diff method, such as:
+    # differ = DeepDiffJsonDiff(args.left, args.right, args.type)
+    # differ.diff()
+    # differ.show_diff()
 
 
 if __name__ == "__main__":
