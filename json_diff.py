@@ -24,17 +24,6 @@ from jycm.helper import make_ignore_order_func
 """
 
 
-class DiffResult:
-    """Encapsulates the result of a diff operation, including the data and a method to display it."""
-
-    def __init__(self, diff_data, show_func):
-        self.diff_data = diff_data
-        self.show_func = show_func
-
-    def show_diff(self):
-        self.show_func(self.diff_data)
-
-
 class JsonDiff:
     """Base class for performing diff operations on JSON files."""
 
@@ -91,7 +80,7 @@ class DeepDiffJsonDiff(JsonDiff):
     """Performs diff operations on JSON files using the DeepDiff library."""
 
     def diff(self):
-        diff_data = DeepDiff(
+        self.diff_result = DeepDiff(
             self.left,
             self.right,
             ignore_order=True,
@@ -99,13 +88,12 @@ class DeepDiffJsonDiff(JsonDiff):
             view="tree",
             threshold_to_diff_deeper=0,
         )
-        return DiffResult(diff_data, self.show_diff)
 
-    def show_diff(self, diff_result):
+    def show_diff(self):
         print("\n##### Using DeepDiff\n")
-        for diff_action in sorted(diff_result):
+        for diff_action in sorted(self.diff_result):
             print(25 * "-" + diff_action.upper() + 25 * "-" + "\n")
-            for item in diff_result[diff_action]:
+            for item in self.diff_result[diff_action]:
                 item_path_list = item.path(output_format="list")
                 item_path = "/".join(str(x) for x in item_path_list)
                 print(self.chg[diff_action] + " | PATH  :", item_path)
@@ -142,15 +130,14 @@ class DifflibJsonDiff(JsonDiff):
                     result += line + "\n"
             return result
 
-        diff_data = get_edits_string(
+        self.diff_result = get_edits_string(
             json.dumps(self.left, indent=4, sort_keys=True),
             json.dumps(self.right, indent=4, sort_keys=True),
         )
-        return DiffResult(diff_data, self.show_diff)
 
-    def show_diff(self, diff_result):
+    def show_diff(self):
         print("\n##### Using difflib and coloured diff\n")
-        print(diff_result)
+        print(self.diff_result)
 
 
 class JycmJsonDiff(JsonDiff):
@@ -160,16 +147,15 @@ class JycmJsonDiff(JsonDiff):
         ycm = YouchamaJsonDiffer(
             self.left, self.right, ignore_order_func=make_ignore_order_func([".*"])
         )
-        diff_data = ycm.get_diff()
-        return DiffResult(diff_data, self.show_diff)
+        self.diff_result = ycm.get_diff()
 
-    def show_diff(self, diff_result):
+    def show_diff(self):
         print("\n##### Using Jycm\n")
-        for diff_action in sorted(diff_result):
+        for diff_action in sorted(self.diff_result):
             if diff_action == "just4vis:pairs":
                 continue
             print(25 * "-" + diff_action.upper() + 25 * "-" + "\n")
-            for item in diff_result[diff_action]:
+            for item in self.diff_result[diff_action]:
                 print(self.chg[diff_action] + " | PATH_LEFT  :", item["left_path"])
                 print(self.chg[diff_action] + " | LEFT  :", item["left"])
                 print(self.chg[diff_action] + " | PATH_RIGHT  :", item["right_path"])
@@ -212,8 +198,8 @@ def main():
 
     diff_class = diff_classes[args.method]
     diff_instance = diff_class(args.left, args.right, args.type)
-    result = diff_instance.diff()
-    result.show_diff()
+    diff_instance.diff()
+    diff_instance.show_diff()
 
 
 if __name__ == "__main__":
