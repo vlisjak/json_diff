@@ -26,7 +26,7 @@ from jycm.helper import make_ignore_order_func
 """
 
 # TODO:
-# - can difflib show the line numbers
+# - can difflib show the line numbers, eg: https://github.com/robproject/fsjd
 # - create HTML from coloured difflib terminal output: https://github.com/pycontribs/ansi2html
 
 class JsonDiff:
@@ -78,10 +78,10 @@ class JsonDiff:
         raise NotImplementedError("Subclasses should implement this!")
 
 
-class DeepDiffJsonDiff(JsonDiff):
+class DeepDiffMethod(JsonDiff):
     """Performs diff operations on JSON files using the DeepDiff library."""
 
-    def diff(self):
+    def diff(self, **kwargs):
         self.diff_result = DeepDiff(
             self.left,
             self.right,
@@ -91,43 +91,63 @@ class DeepDiffJsonDiff(JsonDiff):
             threshold_to_diff_deeper=0,
         )
 
-    # def show_diff(self):
-    #     print("\n##### Using DeepDiff\n")
-    #     for diff_action in sorted(self.diff_result):
-    #         print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
-    #         for item in self.diff_result[diff_action]:
-    #             item_path = "/".join(str(x) for x in item.path(output_format="list"))
-    #             print(f"{self.CHG_ACTION[diff_action]} | PATH | {item_path}")
-    #             print(f"{self.CHG_ACTION[diff_action]} |    L | {item.t1}")
-    #             print(f"{self.CHG_ACTION[diff_action]} |    R | {item.t2}\n")
-
-    # TODO: pick a delimiter that can not appear in left/right element?
-
+    # Note: left/right item can be long multiline string (eg. route policy, acl..), so better to print PATH/L/R each in new line
     def show_diff(self):
         for diff_action in sorted(self.diff_result):
+            # print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
             for item in self.diff_result[diff_action]:
                 item_path = "/".join(str(x) for x in item.path(output_format="list"))
-                print(f"{self.CHG_ACTION[diff_action]} | {item_path} | {item.t1} | {item.t2}")
+                print(f"{self.CHG_ACTION[diff_action]} PATH: {item_path}")
+                print(f"{self.CHG_ACTION[diff_action]} LEFT:\n{item.t1}")
+                print(f"{self.CHG_ACTION[diff_action]} RIGHT:\n{item.t2}")
+                print('-' * 8)
+
+    # TODO: pick a delimiter that can not appear in left/right element?
+    # def show_diff(self):
+    #     for diff_action in sorted(self.diff_result):
+    #         for item in self.diff_result[diff_action]:
+    #             item_path = "/".join(str(x) for x in item.path(output_format="list"))
+    #             print(f"{self.CHG_ACTION[diff_action]} | {item_path} | {item.t1} | {item.t2}")
 
 
-class DifflibJsonDiff(JsonDiff):
+class DifflibMethod(JsonDiff):
     """
     Performs diff operations on JSON files using Python's difflib library.
-    Result is similar to 'legacy' diff, color-coded in ANSI terminal.
+    Result is similar to 'legacy' diff, color-coded in ANSI terminal:
+    - ndiff: complete file with changes
+    - unified: only show changes and few lines before/after the change (useful if huge files and one or two chnages)
+    - html: visualize the diff in html table
     """
 
-    def diff(self):
+    def diff(self, type='unified', **kwargs):
         RED: Callable[[str], str] = lambda text: f"\u001b[31m{text}\033\u001b[0m"
         GREEN: Callable[[str], str] = lambda text: f"\u001b[32m{text}\033\u001b[0m"
 
-        def get_edits_string(old: str, new: str) -> str:
+        def get_diff(old: str, new: str) -> str:
             result = ""
-            lines = difflib.unified_diff(
-                old.splitlines(keepends=True),
-                new.splitlines(keepends=True),
-                fromfile="before",
-                tofile="after",
-            )
+            if type == 'unified':
+                lines = difflib.unified_diff(
+                    old.splitlines(keepends=True),
+                    new.splitlines(keepends=True),
+                    fromfile="before",
+                    tofile="after",
+                )
+            elif type == 'ndiff':
+                lines = difflib.ndiff(
+                    old.splitlines(keepends=True),
+                    new.splitlines(keepends=True)
+                )
+            elif type == 'html':
+                differ = difflib.HtmlDiff()
+                lines = differ.make_file(
+                    old.splitlines(keepends=True),
+                    new.splitlines(keepends=True),
+                    context=True
+                )
+                return lines
+            else:
+                raise Exception("Unsupoorted difflib method.")
+            
             for line in lines:
                 line = line.rstrip()
                 if line.startswith("+"):
@@ -138,25 +158,23 @@ class DifflibJsonDiff(JsonDiff):
                     result += line + "\n"
             return result
 
-        self.diff_result = get_edits_string(
+        self.diff_result = get_diff(
             json.dumps(self.left, indent=4, sort_keys=True),
             json.dumps(self.right, indent=4, sort_keys=True),
         )
 
     def show_diff(self):
-        print("\n##### Using difflib and coloured diff\n")
         print(self.diff_result)
 
 
-class JycmJsonDiff(JsonDiff):
+class JycmMethod(JsonDiff):
     """Performs diff operations on JSON files using the Jycm library."""
 
-    def diff(self):
+    def diff(self, **kwargs):
         ycm = YouchamaJsonDiffer(self.left, self.right, ignore_order_func=make_ignore_order_func([".*"]))
         self.diff_result = ycm.get_diff()
 
     def show_diff(self):
-        print("\n##### Using Jycm\n")
         for diff_action in sorted(self.diff_result):
             if diff_action == "just4vis:pairs":
                 continue
@@ -190,9 +208,9 @@ def main():
     args = parser.parse_args()
 
     diff_classes = {
-        "deepdiff": DeepDiffJsonDiff,
-        "difflib": DifflibJsonDiff,
-        "jycm": JycmJsonDiff,
+        "deepdiff": DeepDiffMethod,
+        "difflib": DifflibMethod,
+        "jycm": JycmMethod,
     }
 
     if args.method not in diff_classes:
@@ -201,11 +219,11 @@ def main():
 
     diff_class = diff_classes[args.method]
     diff_instance = diff_class(args.left, args.right, args.type)
-    diff_instance.diff()
+    diff_instance.diff(type='html')
     diff_instance.show_diff()
 
     # Normally you would pick a single diff method, such as:
-    # differ = DeepDiffJsonDiff(args.left, args.right, args.type)
+    # differ = DeepDiff(args.left, args.right, args.type)
     # differ.diff()
     # differ.show_diff()
 
