@@ -25,6 +25,9 @@ from jycm.helper import make_ignore_order_func
 ./json_diff.py -l left.xml -r right.xml -t xml -m difflib
 """
 
+# TODO:
+# - can difflib show the line numbers
+# - create HTML from coloured difflib terminal output: https://github.com/pycontribs/ansi2html
 
 class JsonDiff:
     """Base class for performing diff operations on JSON files."""
