@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title></title>
+<style type="text/css">
+.ansi2html-content { display: inline; white-space: pre-wrap; word-wrap: break-word; }
+.body_foreground { color: #AAAAAA; }
+.body_background { background-color: #000000; }
+.inv_foreground { color: #000000; }
+.inv_background { background-color: #AAAAAA; }
+.ansi31 { color: #aa0000; }
+.ansi32 { color: #00aa00; }
+</style>
+</head>
+<body class="body_foreground body_background" style="font-size: normal;" >
+<pre class="ansi2html-content">
+  {
+      "config": {
+          "hostname": "pe0",
+          "interface": {
+              "Loopback": [
+                  {
+                      "id": "1",
+                      "ipv4": {
+                          "address": {
+                              "ip": "1.1.1.1/24"
+                          }
+                      },
+                      "vrf": "v1"
+                  },
+                  {
+                      "id": "2",
+                      "ipv4": {
+                          "address": {
+                              "ip": "2.2.2.2/24"
+                          }
+                      },
+                      "vrf": "v2"
+                  },
+                  {
+                      "id": "3",
+                      "ipv4": {
+                          "address": {
+                              "ip": "3.3.3.3/24"
+                          }
+                      },
+                      "vrf": "v2"
+                  }
+              ]
+          },
+          "router": {
+              "bgp": {
+                  "bgp-no-instance": {
+                      "id": "99",
+                      "vrf": [
+                          {
+                              "address-family": {
+                                  "ipv4": {
+                                      "unicast": {
+                                          "redistribute": {
+                                              "connected": null,
+                                              "static": null
+                                          }
+                                      }
+                                  }
+                              },
+                              "name": "v1",
+                              "neighbor": {
+                                  "id": "9.1.1.1",
+                                  "remote-as": "9111"
+                              }
+                          },
+                          {
+                              "address-family": {
+                                  "ipv4": {
+                                      "unicast": {
+                                          "redistribute": {
+                                              "connected": null
+                                          }
+                                      }
+                                  }
+                              },
+                              "name": "v2",
+                              "neighbor": {
+<span class="ansi31">-                                 "id": "9.2.2.2",</span>
+?                                              ^
+<span class="ansi32">+                                 "id": "9.2.2.3",</span>
+?                                              ^
+                                  "remote-as": "9222"
+                              }
+                          }
+                      ]
+                  }
+              }
+          },
+          "vrf": {
+              "vrf-list": [
+                  {
+                      "address-family": {
+                          "ipv4": {
+                              "unicast": {
+                                  "export": {
+                                      "route-target": {
+                                          "address-list": {
+                                              "name": "1:1"
+                                          }
+                                      }
+                                  },
+                                  "import": {
+                                      "route-target": {
+                                          "address-list": {
+                                              "name": "1:1"
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      },
+                      "name": "v1",
+                      "rd": "*"
+                  },
+                  {
+                      "address-family": {
+                          "ipv4": {
+                              "unicast": {
+                                  "export": {
+                                      "route-target": {
+                                          "address-list": {
+<span class="ansi31">-                                             "name": "1:2"</span>
+<span class="ansi32">+                                             "name111": "1:2"</span>
+?                                                  +++
+                                          }
+                                      }
+                                  },
+                                  "import": {
+                                      "route-target": {
+                                          "address-list": {
+<span class="ansi31">-                                             "name": "1:2"</span>
+?                                                        ^
+<span class="ansi32">+                                             "name": "1:3"</span>
+?                                                        ^
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      },
+                      "name": "v2",
+<span class="ansi31">-                     "rd": "1:2"</span>
+?                              ^
+<span class="ansi32">+                     "rd": "1:3"</span>
+?                              ^
+                  }
+              ]
+          }
+      }
+  }
+
+</pre>
+</body>
+
+</html>
+

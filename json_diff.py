@@ -8,27 +8,27 @@ from deepdiff import DeepDiff
 from typing import Callable
 from jycm.jycm import YouchamaJsonDiffer
 from jycm.helper import make_ignore_order_func
+from ansi2html import Ansi2HTMLConverter
 
 """
-# Probably most popular library:
+# DeepDiff: probably most popular library:
 ./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m deepdiff
 
-# Similar to DeepDiff:
+# Jycm: similar to DeepDiff:
 ./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m jycm
 
-# Result is similar to "legacy" diff, including red/green coloring in the terminal
-./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib
+# DiffLib: result is similar to "legacy" diff, with red/green coloring in the terminal
+./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib -s ndiff > diff_result.html
+./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib -s unified > diff_result.html
+./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib -s html > diff_result.html
 
 # XML deepdiff:
 ./json_diff.py -l left.xml -r right.xml -t xml -m deepdiff
 ./json_diff.py -l left.xml -r right.xml -t xml -m jycm
-./json_diff.py -l left.xml -r right.xml -t xml -m difflib
+./json_diff.py -l left.xml -r right.xml -t xml -m difflib -s ndiff > diff_result.html
+./json_diff.py -l left.xml -r right.xml -t xml -m difflib -s unified > diff_result.html
+./json_diff.py -l left.xml -r right.xml -t xml -m difflib -s html > diff_result.html
 """
-
-# TODO:
-# - can difflib show the line numbers, eg: https://github.com/robproject/fsjd
-# - create HTML from coloured difflib terminal output: https://github.com/pycontribs/ansi2html
-
 
 class JsonDiff:
     """Base class for performing diff operations on JSON files."""
@@ -38,12 +38,12 @@ class JsonDiff:
         "dictionary_item_added": "+",
         "iterable_item_removed": "-",
         "dictionary_item_removed": "-",
-        "values_changed": "#",
+        "values_changed": "?",
         "list:add": "+",
         "dict:add": "+",
         "list:remove": "-",
         "dict:remove": "-",
-        "value_changes": "#",
+        "value_changes": "?",
     }
 
     def __init__(self, left_file: str, right_file: str, file_type: str):
@@ -90,12 +90,12 @@ class DeepDiffMethod(JsonDiff):
             report_repetition=True,
             view="tree",
             threshold_to_diff_deeper=0,
+            cache_size=5000
         )
 
     # Note: left/right item can be long multiline string (eg. route policy, acl..), so better to print PATH/L/R each in new line
     def show_diff(self):
         for diff_action in sorted(self.diff_result):
-            # print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
             for item in self.diff_result[diff_action]:
                 item_path = "/".join(str(x) for x in item.path(output_format="list"))
                 print(f"{self.CHG_ACTION[diff_action]} PATH: {item_path}")
@@ -151,7 +151,9 @@ class DifflibMethod(JsonDiff):
                     result += RED(line) + "\n"
                 else:
                     result += line + "\n"
-            return result
+
+            a2html = Ansi2HTMLConverter()
+            return a2html.convert("".join(result))
 
         self.diff_result = get_diff(
             json.dumps(self.left, indent=4, sort_keys=True),
@@ -173,13 +175,12 @@ class JycmMethod(JsonDiff):
         for diff_action in sorted(self.diff_result):
             if diff_action == "just4vis:pairs":
                 continue
-            print(f"{'-' * 25}{diff_action.upper()}{'-' * 25}\n")
             for item in self.diff_result[diff_action]:
-                print(f"{self.CHG_ACTION[diff_action]} | PATH_L | {item['left_path']}")
-                print(f"{self.CHG_ACTION[diff_action]} | PATH_R | {item['right_path']}")
-                print(f"{self.CHG_ACTION[diff_action]} |      L | {item['left']}")
-                print(f"{self.CHG_ACTION[diff_action]} |      R | {item['right']}\n")
-
+                print(f"{self.CHG_ACTION[diff_action]} PATH_L: {item['left_path']}")
+                print(f"{self.CHG_ACTION[diff_action]} PATH_R: {item['right_path']}")
+                print(f"{self.CHG_ACTION[diff_action]} LEFT:\n{item['left']}")
+                print(f"{self.CHG_ACTION[diff_action]} RIGHT:\n{item['right']}")
+                print("-" * 8)
 
 def main():
     parser = argparse.ArgumentParser(description="Diff two files using specified method and type.")
