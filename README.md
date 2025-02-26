@@ -101,7 +101,7 @@ Example router R1
 ![DiffLib unified results](difflib_unified_results.jpg)
 
 
-### Html - nice html table with two columns (both files aligned and coloured)
+### Html - nice html table with two columns (diff sections of both files aligned and coloured)
 `./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib -s html > diff_result.html`
 
 ![DiffLib html results](difflib_html_results.jpg)
