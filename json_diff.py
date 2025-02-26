@@ -29,6 +29,7 @@ from jycm.helper import make_ignore_order_func
 # - can difflib show the line numbers, eg: https://github.com/robproject/fsjd
 # - create HTML from coloured difflib terminal output: https://github.com/pycontribs/ansi2html
 
+
 class JsonDiff:
     """Base class for performing diff operations on JSON files."""
 
@@ -100,10 +101,10 @@ class DeepDiffMethod(JsonDiff):
                 print(f"{self.CHG_ACTION[diff_action]} PATH: {item_path}")
                 print(f"{self.CHG_ACTION[diff_action]} LEFT:\n{item.t1}")
                 print(f"{self.CHG_ACTION[diff_action]} RIGHT:\n{item.t2}")
-                print('-' * 8)
+                print("-" * 8)
 
-    # TODO: pick a delimiter that can not appear in left/right element?
     # def show_diff(self):
+    #     TODO: pick a delimiter that can not appear in left/right element?
     #     for diff_action in sorted(self.diff_result):
     #         for item in self.diff_result[diff_action]:
     #             item_path = "/".join(str(x) for x in item.path(output_format="list"))
@@ -119,35 +120,29 @@ class DifflibMethod(JsonDiff):
     - html: visualize the diff in html table
     """
 
-    def diff(self, type='unified', **kwargs):
+    def diff(self, style="unified", **kwargs):
         RED: Callable[[str], str] = lambda text: f"\u001b[31m{text}\033\u001b[0m"
         GREEN: Callable[[str], str] = lambda text: f"\u001b[32m{text}\033\u001b[0m"
 
         def get_diff(old: str, new: str) -> str:
             result = ""
-            if type == 'unified':
+            if style == "html":
+                differ = difflib.HtmlDiff(wrapcolumn=80)
+                lines = differ.make_file(old.splitlines(keepends=True), new.splitlines(keepends=True), context=True)
+                return lines
+
+            if style == "unified":
                 lines = difflib.unified_diff(
                     old.splitlines(keepends=True),
                     new.splitlines(keepends=True),
                     fromfile="before",
                     tofile="after",
                 )
-            elif type == 'ndiff':
-                lines = difflib.ndiff(
-                    old.splitlines(keepends=True),
-                    new.splitlines(keepends=True)
-                )
-            elif type == 'html':
-                differ = difflib.HtmlDiff()
-                lines = differ.make_file(
-                    old.splitlines(keepends=True),
-                    new.splitlines(keepends=True),
-                    context=True
-                )
-                return lines
+            elif style == "ndiff":
+                lines = difflib.ndiff(old.splitlines(keepends=True), new.splitlines(keepends=True))
             else:
                 raise Exception("Unsupoorted difflib method.")
-            
+
             for line in lines:
                 line = line.rstrip()
                 if line.startswith("+"):
@@ -194,24 +189,30 @@ def main():
         "-t",
         "--type",
         choices=["json", "xml"],
-        required=True,
-        help="Type of the files (json or xml)",
+        required=False,
+        default="json",
+        help="Type of the files.",
     )
     parser.add_argument(
         "-m",
         "--method",
         choices=["deepdiff", "difflib", "jycm"],
-        required=True,
-        help="Method for diffing (deepdiff, difflib, jycm)",
+        required=False,
+        default="deepdiff",
+        help="Method for diffing.",
+    )
+    parser.add_argument(
+        "-s",
+        "--style",
+        choices=["ndiff", "unified", "html"],
+        required=False,
+        default="unified",
+        help="Style for displaying the results of difflib method.",
     )
 
     args = parser.parse_args()
 
-    diff_classes = {
-        "deepdiff": DeepDiffMethod,
-        "difflib": DifflibMethod,
-        "jycm": JycmMethod,
-    }
+    diff_classes = {"deepdiff": DeepDiffMethod, "difflib": DifflibMethod, "jycm": JycmMethod}
 
     if args.method not in diff_classes:
         print(f"Error: Method '{args.method}' is not supported.")
@@ -219,11 +220,11 @@ def main():
 
     diff_class = diff_classes[args.method]
     diff_instance = diff_class(args.left, args.right, args.type)
-    diff_instance.diff(type='html')
+    diff_instance.diff(style=args.style)
     diff_instance.show_diff()
 
     # Normally you would pick a single diff method, such as:
-    # differ = DeepDiff(args.left, args.right, args.type)
+    # differ = DeepDiffMethod(args.left, args.right, args.type)
     # differ.diff()
     # differ.show_diff()
 
