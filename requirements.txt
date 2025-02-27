@@ -1,0 +1,4 @@
+ansi2html==1.9.2
+deepdiff==8.2.0
+jycm==1.5.0
+xmltodict==0.13.0
