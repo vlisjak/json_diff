@@ -2,5 +2,5 @@ backup
 bad_configs
 configs
 json_diff_template.py
-*private*/
+*private*
 *tmp*

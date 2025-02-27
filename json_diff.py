@@ -10,25 +10,27 @@ from jycm.jycm import YouchamaJsonDiffer
 from jycm.helper import make_ignore_order_func
 from ansi2html import Ansi2HTMLConverter
 
-"""
-# DeepDiff: probably most popular library:
-./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m deepdiff
+def usage():
 
-# Jycm: similar to DeepDiff:
-./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m jycm
+    """
+    # DeepDiff: probably most popular library:
+    ./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m deepdiff
 
-# DiffLib: result is similar to "legacy" diff, with red/green coloring in the terminal
-./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib -s ndiff > diff_result.html
-./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib -s unified > diff_result.html
-./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib -s html > diff_result.html
+    # Jycm: similar to DeepDiff:
+    ./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m jycm
 
-# XML deepdiff:
-./json_diff.py -l left.xml -r right.xml -t xml -m deepdiff
-./json_diff.py -l left.xml -r right.xml -t xml -m jycm
-./json_diff.py -l left.xml -r right.xml -t xml -m difflib -s ndiff > diff_result.html
-./json_diff.py -l left.xml -r right.xml -t xml -m difflib -s unified > diff_result.html
-./json_diff.py -l left.xml -r right.xml -t xml -m difflib -s html > diff_result.html
-"""
+    # DiffLib: result is similar to "legacy" diff, with red/green coloring in the terminal
+    ./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib -s ndiff > diff_result.html
+    ./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib -s unified > diff_result.html
+    ./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m difflib -s html > diff_result.html
+
+    # XML deepdiff:
+    ./json_diff.py -l left.xml -r right.xml -t xml -m deepdiff
+    ./json_diff.py -l left.xml -r right.xml -t xml -m jycm
+    ./json_diff.py -l left.xml -r right.xml -t xml -m difflib -s ndiff > diff_result.html
+    ./json_diff.py -l left.xml -r right.xml -t xml -m difflib -s unified > diff_result.html
+    ./json_diff.py -l left.xml -r right.xml -t xml -m difflib -s html > diff_result.html
+    """
 
 class JsonDiff:
     """Base class for performing diff operations on JSON files."""
@@ -183,7 +185,9 @@ class JycmMethod(JsonDiff):
                 print("-" * 8)
 
 def main():
-    parser = argparse.ArgumentParser(description="Diff two files using specified method and type.")
+
+    parser = argparse.ArgumentParser(description=usage.__doc__, formatter_class=argparse.RawTextHelpFormatter)
+    
     parser.add_argument("-l", "--left", required=True, help="Left file name")
     parser.add_argument("-r", "--right", required=True, help="Right file name")
     parser.add_argument(
@@ -231,4 +235,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
