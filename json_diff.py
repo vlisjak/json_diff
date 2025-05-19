@@ -11,7 +11,6 @@ from jycm.helper import make_ignore_order_func
 from ansi2html import Ansi2HTMLConverter
 
 def usage():
-
     """
     # DeepDiff: probably most popular library:
     ./json_diff.py -l network-payload-left.json -r network-payload-right.json -t json -m deepdiff
@@ -92,7 +91,7 @@ class DeepDiffMethod(JsonDiff):
             report_repetition=True,
             view="tree",
             threshold_to_diff_deeper=0,
-            cache_size=5000
+            cache_size=5000,
         )
 
     # Note: left/right item can be long multiline string (eg. route policy, acl..), so better to print PATH/L/R each in new line
@@ -184,10 +183,11 @@ class JycmMethod(JsonDiff):
                 print(f"{self.CHG_ACTION[diff_action]} RIGHT:\n{item['right']}")
                 print("-" * 8)
 
+
 def main():
 
     parser = argparse.ArgumentParser(description=usage.__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    
+
     parser.add_argument("-l", "--left", required=True, help="Left file name")
     parser.add_argument("-r", "--right", required=True, help="Right file name")
     parser.add_argument(
